@@ -1,45 +1,45 @@
-# Octopus README file
+# Opossum README file
 
 
 ###1. Requirements
 
 
-Octopus requires Python 2.7 or greater. It has not been tested with the Python 3.X series.
+Opossum requires Python 2.7 or greater. It has not been tested with the Python 3.X series.
 
 It also requires the following Python packages: pysam v0.8.4, itertools, argparse, os and sys. 
 
 
 
-###2. Running Octopus
+###2. Running Opossum
 
 
-Octopus is a tool to pre-process RNA-seq reads prior to variant calling. Currently, variant callers do not generally behave well with reads encompassing intronic regions. Octopus splits the reads to get rid of the intronic parts. At the same time, it performs several quality control measures such as discarding secondary alignments, poorly mapped reads and read pairs where the two reads are pointing outwards or in the same direction, or that have been mapped in different chromosomes. Octopus also discards duplicate reads based on the start and end positions of the read pair. Furthermore, it merges overlapping paired-end reads.
+Opossum is a tool to pre-process RNA-seq reads prior to variant calling. Currently, variant callers do not generally behave well with reads encompassing intronic regions. Opossum splits the reads to get rid of the intronic parts. At the same time, it performs several quality control measures such as discarding secondary alignments, poorly mapped reads and read pairs where the two reads are pointing outwards or in the same direction, or that have been mapped in different chromosomes. Opossum also discards duplicate reads based on the start and end positions of the read pair. Furthermore, it merges overlapping paired-end reads.
 
-Octopus has been designed to work specifically with Platypus, but it can be used equally well with other variant callers such as GATK.
+Opossum has been designed to work specifically with Platypus, but it can be used equally well with other variant callers such as GATK.
 
 
-Octopus can be run as follows:
+Opossum can be run as follows:
 
-    python Octopus.py --BamFile=input.bam --OutFile=output.bam
+    python Opossum.py --BamFile=input.bam --OutFile=output.bam
 
-Octopus has been tested to work with BAM files that have been aligned with TopHat and Star. Whether or not the aligner uses soft clips should be specified with the parameter *SoftClipsExist* (set *False* for TopHat, *True* for Star).
+Opossum has been tested to work with BAM files that have been aligned with TopHat and Star. Whether or not the aligner uses soft clips should be specified with the parameter *SoftClipsExist* (set *False* for TopHat, *True* for Star).
 
-The BAM file given as input to Octopus should be sorted according to read position. The reads should include the MD tag in the optional field. If MD tags have not been provided, they can be generated with samtools calmd. Octopus does not currently handle reads with hard clips and these will be discarded.
+The BAM file given as input to Opossum should be sorted according to read position. The reads should include the MD tag in the optional field. If MD tags have not been provided, they can be generated with samtools calmd. Opossum does not currently handle reads with hard clips and these will be discarded.
 
-Octopus expects that base qualities have been expressed in the standard Illumina encoding starting at 33. If another encoding has been used (such as the encoding used in earlier Illumina platforms, which starts at 64), the base qualities should be first converted to the standard encoding with e.g. GATK.
+Opossum expects that base qualities have been expressed in the standard Illumina encoding starting at 33. If another encoding has been used (such as the encoding used in earlier Illumina platforms, which starts at 64), the base qualities should be first converted to the standard encoding with e.g. GATK.
 
-Octopus sorts the output file and creates a corresponding index file .bai.
+Opossum sorts the output file and creates a corresponding index file .bai.
 
 
 You can see a list of all the possible input options by running the following command:
 
-    python Octopus.py --help
+    python Opossum.py --help
 
 You should adjust the input parameters according to which mapper has been used for aligning the reads in the input BAM file.
 
 
 
-###3. Main command-line arguments to Octopus
+###3. Main command-line arguments to Opossum
 
 
 *--BamFile* : (Required) BAM file name, or entire path if the file is not located in the same directory as where the code is run.
@@ -63,7 +63,7 @@ You should adjust the input parameters according to which mapper has been used f
 ##4. Suggested parameters when calling variants with Platypus
 
 
-If, after running Octopus, variants are called using Platypus, we suggest keeping the Platypus settings at a minimum. This is because the reads have already been formatted in a way to take into account the various options included in Platypus.
+If, after running Opossum, variants are called using Platypus, we suggest keeping the Platypus settings at a minimum. This is because the reads have already been formatted in a way to take into account the various options included in Platypus.
 
     python Platypus.py --callVariants --bamFiles input.bam --refFile ref.fasta --filterDuplicates 0 --minMapQual 0 --minFlank 0 --maxReadLength 500 --minGoodQualBases 10 --minBaseQual 20 -o variants.vcf
 
@@ -78,7 +78,7 @@ By default, Platypus flags variants that do not fulfill all of its filtering cri
 ####0.1.
 
 
-Released in January 2016. First stable release of Octopus.
+Released in January 2016. First stable release of Opossum.
 
 
 
@@ -89,4 +89,4 @@ Laura Oikkonen: firstname.surname (AT) well.ox.ac.uk
 
 ###License
 
-Octopus is available under the GPL v3 license.
+Opossum is available under the GPL v3 license.
