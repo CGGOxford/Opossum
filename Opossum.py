@@ -68,7 +68,7 @@ def main() :
 
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--BamFile', type=str, help='(Required) BAM file name, or entire path if the file is not located in the same directory as where the code is run.')
-	parser.add_argument('--MinFlank', default=0, type=int, help='Ignore base-changes closer than MinFlank bases to the end of the read. The corresponding base qualities will be set to 0. Default = 0')
+	parser.add_argument('--MinFlankEnd', default=0, type=int, help='Ignore base-changes closer than MinFlankEnd bases to the end of the read. The corresponding base qualities will be set to 0. Default = 0')
 	parser.add_argument('--MinFlankStart', default=0, type=int, help='Ignore base-changes closer than MinFlankStart bases to the start of the read. The corresponding base qualities will be set to 0. Default = 0')
 	parser.add_argument('--SoftClipsExist', default='False', choices=['True', 'False'], help='If set to False (default), no soft clips are expected in the reads, and MinFlank and MinFlankStart are applied to all reads. If set to True, then MinFlank and MinFlankStart are only applied to reads with soft clips. The value typically depends on the aligner used, e.g. for TopHat, it should be False, and for Star, it should be True.')
 	parser.add_argument('--MapCutoff', default=40, type=int, help='Minimum mapping quality of a read pair. If either read in the pair has a lower mapping quality, both will be discarded. Default = 40')
@@ -181,7 +181,7 @@ def main() :
 				remainingpos = remainingpair.union(remainingsingle)
 
                                 for rpos in remainingpos :
-                                        addthesereads = ProcessReadsAtPosition(rpos, args.MinFlank, args.MinFlankStart, SoftClipsExist, args.KeepMismatches)
+                                        addthesereads = ProcessReadsAtPosition(rpos, args.MinFlankEnd, args.MinFlankStart, SoftClipsExist, args.KeepMismatches)
                                         for r in addthesereads :
                                                 newreads.append(r)
 
@@ -192,7 +192,7 @@ def main() :
 					firstread = FindNonduplicate(fnames, False, True)
 
 					# Process the non-duplicate single read 
-					for n in CreateNewReads(forwardsingle[firstread], args.MinFlank, args.MinFlankStart, SoftClipsExist) :
+					for n in CreateNewReads(forwardsingle[firstread], args.MinFlankEnd, args.MinFlankStart, SoftClipsExist) :
 						n.query_name = n.query_name + '_single'
 						newreads.append(n)
 
@@ -264,7 +264,7 @@ def main() :
 							firstread = FindNonduplicate(fnames, False, True)
 							# Process the non-duplicate single read 
 
-							for n in CreateNewReads(forwardsingle[firstread], args.MinFlank, args.MinFlankStart, SoftClipsExist) :
+							for n in CreateNewReads(forwardsingle[firstread], args.MinFlankEnd, args.MinFlankStart, SoftClipsExist) :
 								n.query_name = n.query_name + '_single'
 								newreads.append(n)
 
@@ -359,7 +359,7 @@ def main() :
 							firstread = FindNonduplicate(fnames, False, True)
 							# Process the non-duplicate single read 
 
-							for n in CreateNewReads(forwardsingle[firstread], args.MinFlank, args.MinFlankStart, SoftClipsExist) :
+							for n in CreateNewReads(forwardsingle[firstread], args.MinFlankEnd, args.MinFlankStart, SoftClipsExist) :
 								n.query_name = n.query_name + '_single'
 								newreads.append(n)
 
@@ -396,7 +396,7 @@ def main() :
 							fnames = [key for key in forwardsingle.keys()]
 							firstread = FindNonduplicate(fnames, False, True)
 							# Process the non-duplicate single read 
-							for n in CreateNewReads(forwardsingle[firstread], args.MinFlank, args.MinFlankStart, SoftClipsExist) :
+							for n in CreateNewReads(forwardsingle[firstread], args.MinFlankEnd, args.MinFlankStart, SoftClipsExist) :
 								n.query_name = n.query_name + '_single'
 								newreads.append(n)
 
@@ -409,7 +409,7 @@ def main() :
 				continue
 
                 # Process all single reads and read pairs ending at minpos
-                addthesereads = ProcessReadsAtPosition(minpos, args.MinFlank, args.MinFlankStart, SoftClipsExist, args.KeepMismatches) 
+                addthesereads = ProcessReadsAtPosition(minpos, args.MinFlankEnd, args.MinFlankStart, SoftClipsExist, args.KeepMismatches) 
 
                 for r in addthesereads :
                         newreads.append(r)
@@ -424,7 +424,7 @@ def main() :
 		firstread = FindNonduplicate(fnames, False, True)
 		
 		# Process the non-duplicate single read 
-		for n in CreateNewReads(forwardsingle[firstread], args.MinFlank, args.MinFlankStart, SoftClipsExist) :
+		for n in CreateNewReads(forwardsingle[firstread], args.MinFlankEnd, args.MinFlankStart, SoftClipsExist) :
 			n.query_name = n.query_name + '_single' 
 			newreads.append(n)
 
@@ -476,7 +476,7 @@ def main() :
 
 # Go through those reads in cache that end at minpos and process them (de-duplicate, merge).
 # Return single reads and/or read pairs that remain after processing.
-def ProcessReadsAtPosition(minpos, MinFlank, MinFlankStart, SoftClipsExist, KeepMismatches) :
+def ProcessReadsAtPosition(minpos, MinFlankEnd, MinFlankStart, SoftClipsExist, KeepMismatches) :
 
         global positioncache
         global forwardcache
@@ -507,7 +507,7 @@ def ProcessReadsAtPosition(minpos, MinFlank, MinFlankStart, SoftClipsExist, Keep
                 # Process the non-duplicate single read
                 r = reversesingle[firstread]
 
-                for n in CreateNewReads(r, MinFlank, MinFlankStart, SoftClipsExist) :
+                for n in CreateNewReads(r, MinFlankEnd, MinFlankStart, SoftClipsExist) :
                         n.query_name = n.query_name + '_single' 
                         newreads.append(n)
 
@@ -557,11 +557,11 @@ def ProcessReadsAtPosition(minpos, MinFlank, MinFlankStart, SoftClipsExist, Keep
                 # If read1 and read2 do not overlap, they can be treated independently
                 else :
 
-                        for n in CreateNewReads(r1, MinFlank, MinFlankStart, SoftClipsExist) :
+                        for n in CreateNewReads(r1, MinFlankEnd, MinFlankStart, SoftClipsExist) :
                                 n.query_name = n.query_name + '_pair' 
                                 newreads.append(n)
 					
-                        for n in CreateNewReads(r2, MinFlank, MinFlankStart, SoftClipsExist) :
+                        for n in CreateNewReads(r2, MinFlankEnd, MinFlankStart, SoftClipsExist) :
                                 n.query_name = n.query_name + '_pair' 
                                 newreads.append(n)
 		
@@ -1127,7 +1127,7 @@ def PrimaryAlignment(flag, properlypaired) :
 
 
 # Create new read(s) by splitting input row as necessary
-def CreateNewReads(row, MinFlank, MinFlankStart, SoftClipsExist) :
+def CreateNewReads(row, MinFlankEnd, MinFlankStart, SoftClipsExist) :
 
 	# Trim cigar, sequence, and quality in case there are soft / hard clippings 
 	newcigar, start, end = TrimCigar(row.cigar)
@@ -1142,7 +1142,7 @@ def CreateNewReads(row, MinFlank, MinFlankStart, SoftClipsExist) :
 	# Check whether read originally had soft clips or not
 	if SoftClipsExist :
 		if newcigar == row.cigar :
-			MinFlank = 0
+			MinFlankEnd = 0
 			MinFlankStart = 0
 		else :
 		# check if soft clips are at the beginning or end of the read
@@ -1152,14 +1152,14 @@ def CreateNewReads(row, MinFlank, MinFlankStart, SoftClipsExist) :
 				if cigarlist[0] != 4 :
 					MinFlankStart = 0
 				if cigarlist[-1] != 4 :
-					MinFlank = 0
+					MinFlankEnd = 0
 			else : # reverse read
 				if cigarlist[0] != 4 :
-					MinFlank = 0
+					MinFlankEnd = 0
 				if cigarlist[-1] != 4 :
 					MinFlankStart = 0
 
-	mincut, maxcut = FindCutoffIndices(newcigar, MinFlank, MinFlankStart, ForwardRead)
+	mincut, maxcut = FindCutoffIndices(newcigar, MinFlankEnd, MinFlankStart, ForwardRead)
 
 	# If read does not need to be split, just copy previous read object to new list
 	if splits == 0 and newcigar == row.cigar :
@@ -1451,15 +1451,15 @@ def DiscardVariants(qual, md, cigar, mincut, maxcut, ipos=0, adjustbase=0) :
 # Indices are 0-based.
 # Assume that soft and hard clippings have been discarded or
 # otherwise taken into account. Deletions will not affect cutoff value.
-def FindCutoffIndices(cigar, MinFlank, MinFlankStart, ForwardRead) :
+def FindCutoffIndices(cigar, MinFlankEnd, MinFlankStart, ForwardRead) :
 
 	cigarstring = CigarSequence(cigar, [3,5])
 
 	if ForwardRead :
 		firstcut = MinFlankStart
-		lastcut = MinFlank
+		lastcut = MinFlankEnd
 	else :
-		firstcut = MinFlank
+		firstcut = MinFlankEnd
 		lastcut = MinFlankStart
 
 	mincut = 0

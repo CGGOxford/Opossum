@@ -44,9 +44,9 @@ You should adjust the input parameters according to which mapper has been used f
 
 *--BamFile* : (Required) BAM file name, or entire path if the file is not located in the same directory as where the code is run.
 
-*--MinFlank* : Ignore base-changes closer than MinFlank bases to the end of the read. The corresponding base qualities will be set to 0. Default = 0
-
 *--MinFlankStart* : Ignore base-changes closer than MinFlankStart bases to the start of the read. The corresponding base qualities will be set to 0. Default = 0
+
+*--MinFlankEnd* : Ignore base-changes closer than MinFlankEnd bases to the end of the read. The corresponding base qualities will be set to 0. Default = 0
 
 *--SoftClipsExist* : If set to False (default), no soft clips are expected in the reads, and MinFlank and MinFlankStart are applied to all reads. If set to True, then MinFlank and MinFlankStart are only applied to reads with soft clips. The value typically depends on the aligner used, e.g. for TopHat, it should be False, and for Star, it should be True.
 
