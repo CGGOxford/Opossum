@@ -35,7 +35,7 @@ You can see a list of all the possible input options by running the following co
 
     python Opossum.py --help
 
-You should adjust the input parameters according to which mapper has been used for aligning the reads in the input BAM file.
+You should adjust the input parameters according to which mapper has been used for aligning the reads in the input BAM file. The appropriate values for *MinFlankStart* and *MinFlankEnd* can be determined with the help of **compute_mismatch_rates.py** and **plot_mismatch_rates.py**, which are provided alongside the Opossum code.
 
 
 
