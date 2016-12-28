@@ -75,7 +75,7 @@ By default, Platypus flags variants that do not fulfill all of its filtering cri
 ###5. Release History
 
 
-####0.1.
+####1.0
 
 
 Released in January 2016. First stable release of Opossum.
@@ -90,3 +90,6 @@ Laura Oikkonen: firstname.surname (AT) well.ox.ac.uk
 ###License
 
 Opossum is available under the GPL v3 license.
+
+
+Please cite: https://doi.org/10.5281/zenodo.223009
