@@ -1,8 +1,8 @@
-# Opossum version 0.1, released on 17.1.2016
+# Opossum version 0.2, released on 23.2.2017
 # Laura Oikkonen
 
 
-# Code requires version 0.8.4 of Pysam package
+# Code requires version 0.10.0 of Pysam package
 import pysam, itertools, argparse, os, sys
 
 # Store reads temporarily in these dictionaries before processing them
@@ -59,8 +59,9 @@ def main() :
 	global mergedpairs 
 	global splitmergedpairs 
 	global separatepairs 
-	global individualreads 
+	global individualreads
 
+	read_unmapped = 0 # unmapped read
 	mate_unmapped = 0 # read whose mate is unmapped
 	mate_diff_chr = 0 # read whose mate has been mapped to a different chromosome
 	mate_junk = 0 # read whose mate has been mapped to junk
@@ -110,7 +111,6 @@ def main() :
 	# Store single forward reads here until iterator arrives at next starting position
 	forwardpos = 0 # position considered for single forward reads
 	refpos = 0 # position of forward read that is properly paired
-
 
 	outputfile = args.OutFile
 	# Create output file
@@ -168,11 +168,16 @@ def main() :
 			else : # chromosome has changed
 				contigname = tryread.rname
 
-				try :
-					print samfile.get_reference_name(contigname)
-				except :
-					print 'Could not print contig name'	
-					
+				if contigname == -1 : # read is unmapped
+					pass
+				else :
+					try :
+						print samfile.get_reference_name(contigname)
+					except :
+						print 'Could not print contig name'	
+
+				print len(forwardsingle), ' forward reads remain'
+				print len(positionsingle), ' single positions remain'
                                 # all remaining reads corresponding to this chromosome have now
                                 # been read into cache, process them before moving on to the 
 				# next chromosome
@@ -204,6 +209,7 @@ def main() :
 					newfile.write(n)
 
 				newreads = []
+				forwardpos = 0 
 
 				# Empty all caches (in theory they should all be empty, except if input bam file contains reads with hard clips)
 
@@ -217,9 +223,13 @@ def main() :
 				if reversesingle :  reversesingle = {}
 				if positionsingle : positionsingle = {}
 
+			# Filter out unmapped reads
+			if (tryread.flag & 4) == 4 :
+				read_unmapped += 1
+				continue
 
 			# Filter out secondary reads
-			if not PrimaryAlignment(tryread.flag, args.ProperlyPaired) : # get rid of secondary alignments
+			elif not PrimaryAlignment(tryread.flag, args.ProperlyPaired) : # get rid of secondary alignments
 				if (tryread.flag & 256) == 256 : # secondary alignment 
 					secondary += 1
 				else :
@@ -232,10 +242,11 @@ def main() :
 				continue
 
 
-			# If read mate is unmapped, add it to separate cache
-			elif (tryread.flag & 8) == 8 :
-
-				mate_unmapped += 1
+			# If read mate is unmapped or doesn't exist, add it to separate cache
+			elif (tryread.flag & 8) == 8 or (tryread.flag & 1) != 1 :
+				
+				if (tryread.flag & 8) == 8: 
+					mate_unmapped += 1
 
 				# Check that mapping quality is above threshold
 				if tryread.mapping_quality < args.MapCutoff :
@@ -249,7 +260,7 @@ def main() :
 					if newpos < minpos : minpos = newpos
 
 				else : # forward read
-		
+
 					if forwardpos == position : 
 						forwardsingle[readname] = tryread
 
@@ -440,11 +451,12 @@ def main() :
 	print 'Number of discarded secondary reads: ', secondary
         if args.ProperlyPaired == 'True' :
                 print 'Number of discarded improperly paired reads: ', improper
+	print 'Number of discarded unmapped reads: ', read_unmapped
 	print 'Number of reads whose mate is unmapped: ', mate_unmapped
 	print 'Number of discarded reads whose mate has been mapped to a different chromosome: ', mate_diff_chr
 	print 'Number of discarded reads whose mate has been mapped to junk: ', mate_junk
  
-	print 'Number of discarded reads that are pointing outwards: ', outwardreads
+	print 'Number of discarded read pairs that are pointing outwards: ', outwardreads # read or read pair?
 	print 'Number of discarded reads where read and its mate have been mapped in the same direction: ', samedir
         if args.ProperlyPaired == 'True' :
                 print 'Number of discarded duplicate reads that are missing non-duplicate counterpart: ', duplicatereads
@@ -461,17 +473,11 @@ def main() :
 	print 'Number of independently treated read pairs: ', separatepairs
 	print 'Number of individual reads: ', individualreads
 
-#	print 'Number of leftover reads: ', len(forwardcache), len(reversecache), len(positioncache), len(singlereads), len(reversesingle), len(forwardsingle), len(positionsingle)
-
-	
+	print 'Number of leftover reads: ', len(forwardcache), len(reversecache), len(positioncache), len(singlereads), len(reversesingle), len(forwardsingle), len(positionsingle)
 
 	# Sort and index output file
-	sortedfile = outputfile[:-4] #remove .bam suffix 
-	
-#	print sortedfile 
-	pysam.sort(outputfile, sortedfile)
-	pysam.index(sortedfile + '.bam')
-
+	pysam.sort(outputfile, "-o", outputfile, "-T", outputfile[:-4]) # use outputfile[:-4] as prefix for temporary files
+	pysam.index(outputfile) 
 
 
 # Go through those reads in cache that end at minpos and process them (de-duplicate, merge).
