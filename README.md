@@ -6,7 +6,7 @@
 
 Opossum requires Python 2.7 or greater. It has not been tested with the Python 3.X series.
 
-It also requires the following Python packages: pysam v0.8.4, itertools, argparse, os and sys. 
+It also requires the following Python packages: pysam v0.10.0, itertools, argparse, os and sys. 
 
 
 
@@ -75,7 +75,11 @@ By default, Platypus flags variants that do not fulfill all of its filtering cri
 ###5. Release History
 
 
-####1.0
+####0.2
+
+Released on February 23, 2017. Updated dependency to Pysam v0.10.0. Opossum now supports unpaired data and filters out unmapped reads. Bug fixes.
+
+####0.1
 
 
 Released in January 2016. First stable release of Opossum.
@@ -92,4 +96,4 @@ Laura Oikkonen: firstname.surname (AT) well.ox.ac.uk
 Opossum is available under the GPL v3 license.
 
 
-Please cite: https://doi.org/10.5281/zenodo.223009
+Please cite: Oikkonen L and Lise S. Making the most of RNA-seq: Pre-processing sequencing data with Opossum for reliable SNP variant detection. Wellcome Open Res 2017, 2:6 (doi: 10.12688/wellcomeopenres.10501.1) 
