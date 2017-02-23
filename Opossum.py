@@ -176,8 +176,6 @@ def main() :
 					except :
 						print 'Could not print contig name'	
 
-				print len(forwardsingle), ' forward reads remain'
-				print len(positionsingle), ' single positions remain'
                                 # all remaining reads corresponding to this chromosome have now
                                 # been read into cache, process them before moving on to the 
 				# next chromosome
@@ -456,7 +454,7 @@ def main() :
 	print 'Number of discarded reads whose mate has been mapped to a different chromosome: ', mate_diff_chr
 	print 'Number of discarded reads whose mate has been mapped to junk: ', mate_junk
  
-	print 'Number of discarded read pairs that are pointing outwards: ', outwardreads # read or read pair?
+	print 'Number of discarded read pairs that are pointing outwards: ', outwardreads
 	print 'Number of discarded reads where read and its mate have been mapped in the same direction: ', samedir
         if args.ProperlyPaired == 'True' :
                 print 'Number of discarded duplicate reads that are missing non-duplicate counterpart: ', duplicatereads
