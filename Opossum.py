@@ -762,7 +762,14 @@ def MergeDuplicates(p, d, ForwardRead, PairedRead) :
 		secondseq = secondseq[::-1]
 		newqual = newqual[::-1]
 		secondqual = secondqual[::-1]
-	
+	# Check that the MD tag actually exists
+	try:
+		r1_MD = r1.get_tag('MD')
+		r2_MD = r2.get_tag('MD')
+	except KeyError:
+		sys.stderr.write("Error: MD tag doesn't exist in input file\n")
+		sys.exit(1)
+
 	# Turn seq and qual into a list
 	firstseq = list(firstseq)
 	newqual = list(newqual)
@@ -786,7 +793,7 @@ def MergeDuplicates(p, d, ForwardRead, PairedRead) :
 	diffcigar = 0
 
 	# Check how many bases match from the beginning of the sequences based on MD tag and cigar
-	matchingbases = min(MatchingBases(r1.get_tag('MD'), r1.cigar, ForwardRead), MatchingBases(r2.get_tag('MD'), r2.cigar, ForwardRead))
+	matchingbases = min(MatchingBases(r1_MD, r1.cigar, ForwardRead), MatchingBases(r2_MD, r2.cigar, ForwardRead))
 	firstpos += matchingbases
 	cigarpos += matchingbases
 
@@ -1163,12 +1170,19 @@ def CreateNewReads(row, MinFlankEnd, MinFlankStart, SoftClipsExist) :
 				if cigarlist[-1] != 4 :
 					MinFlankStart = 0
 
+	# Check if the MD tag actually exists
+	try:
+		row_MD = row.get_tag('MD')
+	except KeyError:
+		sys.stderr.write("Error: MD tag doesn't exist in input file\n")
+		sys.exit(1)
+
 	mincut, maxcut = FindCutoffIndices(newcigar, MinFlankEnd, MinFlankStart, ForwardRead)
 
 	# If read does not need to be split, just copy previous read object to new list
 	if splits == 0 and newcigar == row.cigar :
 
-		newqual = DiscardVariants(pysam.qualities_to_qualitystring(row.query_qualities), row.get_tag('MD'), newcigar, mincut, maxcut)
+		newqual = DiscardVariants(pysam.qualities_to_qualitystring(row.query_qualities), row_MD, newcigar, mincut, maxcut)
 		newrow = CreateReadObject(row, row.query_sequence, newqual, newcigar, row.reference_start)
 		yield newrow 
 
@@ -1177,7 +1191,7 @@ def CreateNewReads(row, MinFlankEnd, MinFlankStart, SoftClipsExist) :
 		newseq = row.query_sequence[start:end]
 		newqual = pysam.qualities_to_qualitystring(row.query_qualities)[start:end]
 
-		newqual = DiscardVariants(newqual, row.get_tag('MD'), newcigar, mincut, maxcut)
+		newqual = DiscardVariants(newqual, row_MD, newcigar, mincut, maxcut)
 		newrow = CreateReadObject(row, newseq, newqual, newcigar, row.reference_start)
 		yield newrow 
 		
@@ -1208,7 +1222,7 @@ def CreateNewReads(row, MinFlankEnd, MinFlankStart, SoftClipsExist) :
 					i = newi
 					continue
 
-			newrow.query_qualities = pysam.qualitystring_to_array(DiscardVariants(newrow.qual, row.get_tag('MD'), row.cigar, mincut, maxcut, i))
+			newrow.query_qualities = pysam.qualitystring_to_array(DiscardVariants(newrow.qual, row_MD, row.cigar, mincut, maxcut, i))
 			k = newk
 			i = newi 
 			newrow.query_name = readname
@@ -1602,9 +1616,13 @@ def MergeReads(r1, r2, MinFlankStart, keepit, SoftClipsExist) :
 	secondseq = secondread.query_sequence[start2:end2]
 	secondqual = pysam.qualities_to_qualitystring(secondread.query_qualities)[start2:end2]
 
-	firstmd = firstread.get_tag('MD') # retrieve MD tags - this also speeds up code
-	secondmd = secondread.get_tag('MD')
-				
+	try:
+		firstmd = firstread.get_tag('MD') # retrieve MD tags - this also speeds up code
+		secondmd = secondread.get_tag('MD')
+	except KeyError:
+		sys.stderr.write("Error: MD tag doesn't exist in input file\n")
+		sys.exit(1)
+
 	firstpos = 0
 	cigarpos = 0
 	possiblereads = [] # Store here reads before adding them to newreads
