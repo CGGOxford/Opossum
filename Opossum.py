@@ -1302,7 +1302,15 @@ def CreateReadObject(read, newseq, newqual, newcigar, startread, basetag=[]) :
 	a.query_qualities = pysam.qualitystring_to_array(newqual)
 	a.cigar = newcigar
 	a.reference_start = startread
-	a.mapping_quality = read.mapping_quality
+
+	# If (Star) mapper has assigned a value of 255 to mapping quality,
+	# change it to 50
+	mapqual = read.mapping_quality 
+	if mapqual == 255 :
+		a.mapping_quality = 50
+	else :
+		a.mapping_quality = mapqual
+
 	a.reference_id = read.reference_id
 	a.tags = ()
 	a.next_reference_id = -1
