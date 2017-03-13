@@ -99,6 +99,7 @@ def main() :
 		samfile = pysam.AlignmentFile(args.BamFile, "rb")
 	except :
 		print 'Could not open file', args.BamFile
+		return
 
 	filename = os.path.split(args.BamFile)
 
