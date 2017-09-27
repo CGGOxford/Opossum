@@ -977,7 +977,7 @@ def CheckMisalignments(qual, firstcigar, secondcigar) :
 
 			# Read in inserts
 			if cigartype1 == 1 :
-				iq += cigarlength
+				iq += cigarlength1
 				cigarindex1 += 1
 				continue
 			elif cigartype2 == 1 :
