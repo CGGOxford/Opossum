@@ -1,7 +1,7 @@
 # Opossum README file
 
 
-###1. Requirements
+## 1. Requirements
 
 
 Opossum requires Python 2.7 or greater. It has not been tested with the Python 3.X series.
@@ -10,7 +10,7 @@ It also requires the following Python packages: pysam v0.10.0, itertools, argpar
 
 
 
-###2. Running Opossum
+## 2. Running Opossum
 
 
 Opossum is a tool to pre-process RNA-seq reads prior to variant calling. Currently, variant callers do not generally behave well with reads encompassing intronic regions. Opossum splits the reads to get rid of the intronic parts. At the same time, it performs several quality control measures such as discarding secondary alignments, poorly mapped reads and read pairs where the two reads are pointing outwards or in the same direction, or that have been mapped in different chromosomes. Opossum also discards duplicate reads based on the start and end positions of the read pair. Furthermore, it merges overlapping paired-end reads.
@@ -39,7 +39,7 @@ You should adjust the input parameters according to which mapper has been used f
 
 
 
-###3. Main command-line arguments to Opossum
+## 3. Main command-line arguments to Opossum
 
 
 *--BamFile* : (Required) BAM file name, or entire path if the file is not located in the same directory as where the code is run.
@@ -60,7 +60,7 @@ You should adjust the input parameters according to which mapper has been used f
 
 
 
-##4. Suggested parameters when calling variants with Platypus
+## 4. Suggested parameters when calling variants with Platypus
 
 
 If, after running Opossum, variants are called using Platypus, we suggest keeping the Platypus settings at a minimum. This is because the reads have already been formatted in a way to take into account the various options included in Platypus.
@@ -72,21 +72,21 @@ It should be noted that *minGoodQualBases* also defines the minimum acceptable r
 By default, Platypus flags variants that do not fulfill all of its filtering criteria (please see Platypus publication). These criteria have been designed to make the most out of DNA data. The same criteria can well be used with RNA-seq data if the user wants to maximize precision at the cost of sensitivity. However, if the user seeks a greater balance between precision and sensitivity, it would be advisable to include variants flagged as 'badReads', 'SC', and 'Q20' among the final variants.
 
 
-###5. Release History
+## 5. Release History
 
 
-####0.2
+### 0.2
 
 Released on February 23, 2017. Updated dependency to Pysam v0.10.0. Opossum now supports unpaired data and filters out unmapped reads. Bug fixes.
 
-####0.1
+### 0.1
 
 
 Released in January 2016. First stable release of Opossum.
 
 
 
-###Contact
+### Contact
 
 Laura Oikkonen: firstname.surname (AT) well.ox.ac.uk
 
