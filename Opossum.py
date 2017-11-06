@@ -1312,7 +1312,15 @@ def CreateReadObject(read, newseq, newqual, newcigar, startread, basetag=[]) :
 		a.mapping_quality = mapqual
 
 	a.reference_id = read.reference_id
-	a.tags = ()
+
+	# If read has RG read group tag, keep it
+	try :
+		r_RG = read.get_tag('RG')
+		a.tags = ()
+		a.set_tag('RG', r_RG)
+	except :
+		a.tags = ()
+
 	a.next_reference_id = -1
 	a.next_reference_start = -1
 	a.template_length = 0
