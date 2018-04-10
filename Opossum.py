@@ -155,6 +155,7 @@ def main() :
 				tryread = samfile.next()
 				position = tryread.reference_start
 				readname = tryread.query_name # Store qname to speed up code
+#				print readname # FOR DEBUGGING
 
 			except :
 				cont = False
@@ -474,9 +475,23 @@ def main() :
 
 	print 'Number of leftover reads: ', len(forwardcache), len(reversecache), len(positioncache), len(singlereads), len(reversesingle), len(forwardsingle), len(positionsingle)
 
-	# Sort and index output file
+
+# Sort and index output file
 	pysam.sort(outputfile, "-o", outputfile, "-T", outputfile[:-4]) # use outputfile[:-4] as prefix for temporary files
-	pysam.index(outputfile) 
+	pysam.index(outputfile)
+
+	# Check that output file is not empty
+#	try :
+#		if os.path.getsize(outputfile) > 0 :
+
+			# Sort and index output file
+#			pysam.sort(outputfile, "-o", outputfile, "-T", outputfile[:-4]) # use outputfile[:-4] as prefix for temporary files
+#			pysam.index(outputfile)
+#		else :
+#			print 'Output bam file ', outputfile, ' is empty.'
+#	except OSError :
+#		print 'Was not able to get size of file ', outputfile
+
 
 
 # Go through those reads in cache that end at minpos and process them (de-duplicate, merge).
@@ -632,6 +647,7 @@ def FindDuplicatePairs(readpairs) :
 	# Go through reads and store them based on the start position of forward read in
 	# a dictionary
 	for r in readpairs :
+
 		startpos = forwardcache[r].reference_start - AddClips(forwardcache[r].cigar, True)
 		if startpos in readgroups :
 			readgroups[startpos].append(r)
@@ -645,6 +661,8 @@ def FindDuplicatePairs(readpairs) :
 		if len(readgroups[key]) == 1 :
 			newpairs.append(readgroups[key][0])
 			continue
+
+#		print readgroups[key]
 
 		firstread = FindNonduplicate(readgroups[key], True)
 		newpairs.append(firstread)
@@ -954,6 +972,8 @@ def CheckMisalignments(qual, firstcigar, secondcigar) :
 	if firstcigar == secondcigar :
 		return qual
 
+#	print firstcigar, secondcigar
+
 	# First check whether either cigar has any 'N' type parts
 	n1 = sum([1 for cigartype, cigarlength in firstcigar if cigartype == 3])
 	n2 = sum([1 for cigartype, cigarlength in secondcigar if cigartype == 3])
@@ -962,22 +982,25 @@ def CheckMisalignments(qual, firstcigar, secondcigar) :
 		return qual
 
 	# In case of 'N' type parts, find start and end indices of each bit
-	iq = 0 # base quality index
+	iq = 0 # base quality index (up to which the reads have possible N sections in same places)
 	cigarindex1 = 0
 	qualpos1 = 0
 	cigarindex2 = 0
 	qualpos2 = 0
-	ntemp1 = 0
-	ntemp2 = 0
+	ntemp1 = 0 # number of N sections in read1
+	ntemp2 = 0 # number of N sections in read2
 
-	while (iq < len(qual) or qualpos2 < qualpos1) and (cigarindex2 < len(secondcigar) or qualpos1 < qualpos2) :
+	while (iq < len(qual) or qualpos2 < qualpos1) and (cigarindex2 < len(secondcigar) or qualpos1 < qualpos2 ) :
+
 		if qualpos1 == qualpos2 : # if both have been read up to same point, read in both cigars
 			cigartype1, cigarlength1 = firstcigar[cigarindex1]
 			cigartype2, cigarlength2 = secondcigar[cigarindex2]
 
+#			print cigartype1, cigarlength1, cigartype2, cigarlength2
+
 			# Read in inserts
 			if cigartype1 == 1 :
-				iq += cigarlength1
+				iq += cigarlength1 # FIXED!
 				cigarindex1 += 1
 				continue
 			elif cigartype2 == 1 :
@@ -1018,6 +1041,7 @@ def CheckMisalignments(qual, firstcigar, secondcigar) :
 			if cigartype1 == 0 or cigartype1 == 4 : # regular base or soft clip
 				qualpos1 += cigarlength1
 				iq += cigarlength1
+#				print iq, len(qual) # FOR DEBUGGING
 			else : # deletion
 				qualpos1 += cigarlength1
 		
@@ -1026,8 +1050,12 @@ def CheckMisalignments(qual, firstcigar, secondcigar) :
 			else : # deletion or soft clips
 				qualpos2 += cigarlength2
 
+#			if cigarindex1 < len(firstcigar) and cigarindex2 < len(secondcigar) :
 			cigarindex1 += 1
 			cigarindex2 += 1
+#			else :
+#				break
+
 
 		elif qualpos1 < qualpos2 : 
 
@@ -1659,6 +1687,15 @@ def MergeReads(r1, r2, MinFlankStart, keepit, SoftClipsExist) :
 	for n in range(moresplits) :
 		newrow, newpos, newk, newi = CreateSplitRead(firstread, position, k, i)
 		position = newpos
+
+                # Check that new read does not consist only of deletions - this would not  
+	        # make sense and would result in empty quality string
+	        if len(newrow.cigar) == 1 :
+		        cigartype, cigarlength = newrow.cigar[0]
+		        if cigartype == 2 : # deletion
+			       k = newk
+			       i = newi
+			       continue
 
 		# Check if mincut extends to this new read
 		newrow.query_qualities = pysam.qualitystring_to_array(DiscardVariants(newrow.qual, firstmd, newcigar1, mincut, 100000, i))
