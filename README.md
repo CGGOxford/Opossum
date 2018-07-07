@@ -30,7 +30,7 @@ The BAM file given as input to Opossum should be sorted according to read positi
 samtools calmd -b input.bam ref.fasta > oppossum_input.bam
 ```
 
-where input.bam is your file missing MD tags, ref.fasta is the reference fasta file, and oppossum_input.bam is a BAM file Oppossum can use.
+where input.bam is your file missing MD tags, ref.fasta is the reference fasta file, and oppossum_input.bam is a BAM file Opossum can use.
 
 Opossum does not currently handle reads with hard clips and these will be discarded.
 
