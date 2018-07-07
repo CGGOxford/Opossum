@@ -27,7 +27,7 @@ Opossum has been tested to work with BAM files that have been aligned with TopHa
 The BAM file given as input to Opossum should be sorted according to read position. The reads should include the MD tag in the optional field. If MD tags have not been provided, they can be generated as follows:
 
 ```bash
-samtools calmd -b input.bam ref.fasta > oppossum_input.bam
+samtools calmd -b input.bam ref.fasta > opossum_input.bam
 ```
 
 where input.bam is your file missing MD tags, ref.fasta is the reference fasta file, and oppossum_input.bam is a BAM file Opossum can use.
