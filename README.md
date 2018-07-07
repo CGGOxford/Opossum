@@ -22,15 +22,18 @@ Opossum can be run as follows:
 
     python Opossum.py --BamFile=input.bam --OutFile=output.bam
 
-Opossum has been tested to work with BAM files that have been aligned with TopHat and Star. Whether or not the aligner uses soft clips should be specified with the parameter *SoftClipsExist* (set *False* for TopHat, *True* for Star).
+Opossum has been tested to work with BAM files that have been aligned with TopHat and STAR. Whether or not the aligner uses soft clips should be specified with the parameter *SoftClipsExist* (set *False* for TopHat, *True* for STAR).
 
-The BAM file given as input to Opossum should be sorted according to read position. The reads should include the MD tag in the optional field. If MD tags have not been provided, they can be generated as follows:
+The BAM file given as input to Opossum should be sorted according to read position. The reads should include the MD tag in the optional field. This can be done during alignment with STAR using `--outSAMattributes NH HI AS nM MD`. 
+
+
+If a BAM file without MD tags already exists, they can be added as follows:
 
 ```bash
 samtools calmd -b input.bam ref.fasta > opossum_input.bam
 ```
 
-where input.bam is your file missing MD tags, ref.fasta is the reference fasta file, and oppossum_input.bam is a BAM file Opossum can use.
+where input.bam is the file missing MD tags, ref.fasta is the reference fasta file, and opossum_input.bam is a BAM file Opossum can use.
 
 Opossum does not currently handle reads with hard clips and these will be discarded.
 
