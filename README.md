@@ -24,7 +24,15 @@ Opossum can be run as follows:
 
 Opossum has been tested to work with BAM files that have been aligned with TopHat and Star. Whether or not the aligner uses soft clips should be specified with the parameter *SoftClipsExist* (set *False* for TopHat, *True* for Star).
 
-The BAM file given as input to Opossum should be sorted according to read position. The reads should include the MD tag in the optional field. If MD tags have not been provided, they can be generated with samtools calmd. Opossum does not currently handle reads with hard clips and these will be discarded.
+The BAM file given as input to Opossum should be sorted according to read position. The reads should include the MD tag in the optional field. If MD tags have not been provided, they can be generated as follows:
+
+```bash
+samtools calmd -b input.bam ref.fasta > oppossum_input.bam
+```
+
+where input.bam is your file missing MD tags, ref.fasta is the reference fasta file, and oppossum_input.bam is a BAM file Oppossum can use.
+
+Opossum does not currently handle reads with hard clips and these will be discarded.
 
 Opossum expects that base qualities have been expressed in the standard Illumina encoding starting at 33. If another encoding has been used (such as the encoding used in earlier Illumina platforms, which starts at 64), the base qualities should be first converted to the standard encoding with e.g. GATK.
 
