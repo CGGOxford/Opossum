@@ -91,7 +91,7 @@ Released in January 2016. First stable release of Opossum.
 Laura Oikkonen: firstname.surname (AT) well.ox.ac.uk
 
 
-###License
+### License
 
 Opossum is available under the GPL v3 license.
 
